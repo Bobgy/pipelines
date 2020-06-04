@@ -22,7 +22,7 @@ steps:
     - -ceux
     - |
       # Parse major minor version and save to a file for reusing in other steps.
-      echo $TAG_NAME | sed -e "s#[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)#\1.\2#" > /workspace/mm.ver
+      echo $_TAG_NAME | sed -e "s#[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)#\1.\2#" > /workspace/mm.ver
 
 # Pull and retag images for pipeline components
 - id: 'retagComponentImages'
@@ -49,8 +49,8 @@ steps:
     )
     for image in "${images[@]}"
     do
-      from_image="gcr.io/$PROJECT_ID/$image:$COMMIT_SHA"
-      target_image="gcr.io/ml-pipeline/$image:$TAG_NAME"
+      from_image="gcr.io/$PROJECT_ID/$image:$_COMMIT_SHA"
+      target_image="gcr.io/ml-pipeline/$image:$_TAG_NAME"
       docker pull $from_image
       docker tag $from_image $target_image
       docker push $target_image
@@ -58,7 +58,7 @@ steps:
 
 # Pull and retag the images for the pipeline system
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA']
   id:   'pullFrontend'
 - id:   'tagFrontendForMarketplaceMajorMin'
   waitFor: ['pullFrontend', 'parseMajorMinorVersion']
@@ -67,21 +67,21 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA gcr.io/ml-pipeline/frontend:$TAG_NAME
-    docker tag gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA gcr.io/ml-pipeline/frontend:$COMMIT_SHA
-    docker tag gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/frontend:$TAG_NAME
-    docker tag gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/frontend:$TAG_NAME
-    docker tag gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/frontend:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/frontend:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/frontend:$(cat /workspace/mm.ver)
-    docker push gcr.io/ml-pipeline/frontend:$TAG_NAME
-    docker push gcr.io/ml-pipeline/frontend:$COMMIT_SHA
-    docker push gcr.io/ml-pipeline/google/pipelines/frontend:$TAG_NAME
-    docker push gcr.io/ml-pipeline/google/pipelines-test/frontend:$TAG_NAME
+    docker tag gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA gcr.io/ml-pipeline/frontend:$_TAG_NAME
+    docker tag gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA gcr.io/ml-pipeline/frontend:$_COMMIT_SHA
+    docker tag gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/frontend:$_TAG_NAME
+    docker tag gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/frontend:$_TAG_NAME
+    docker tag gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/frontend:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/frontend:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/frontend:$(cat /workspace/mm.ver)
+    docker push gcr.io/ml-pipeline/frontend:$_TAG_NAME
+    docker push gcr.io/ml-pipeline/frontend:$_COMMIT_SHA
+    docker push gcr.io/ml-pipeline/google/pipelines/frontend:$_TAG_NAME
+    docker push gcr.io/ml-pipeline/google/pipelines-test/frontend:$_TAG_NAME
     docker push gcr.io/ml-pipeline/google/pipelines/frontend:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/frontend:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA']
   id:   'pullAPIServer'
 - id:   'tagAPIServerForMarketplaceMajorMinor'
   waitFor: ['pullAPIServer', 'parseMajorMinorVersion']
@@ -90,36 +90,36 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA 'gcr.io/ml-pipeline/api-server:$TAG_NAME'
-    docker tag gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA 'gcr.io/ml-pipeline/api-server:$COMMIT_SHA'
-    docker tag gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA 'gcr.io/ml-pipeline/google/pipelines/apiserver:$TAG_NAME'
-    docker tag gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA 'gcr.io/ml-pipeline/google/pipelines-test/apiserver:$TAG_NAME'
-    docker tag gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/apiserver:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/api-server:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/apiserver:$(cat /workspace/mm.ver)
-    docker push 'gcr.io/ml-pipeline/api-server:$TAG_NAME'
-    docker push 'gcr.io/ml-pipeline/api-server:$COMMIT_SHA'
-    docker push 'gcr.io/ml-pipeline/google/pipelines/apiserver:$TAG_NAME'
-    docker push 'gcr.io/ml-pipeline/google/pipelines-test/apiserver:$TAG_NAME'
+    docker tag gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA 'gcr.io/ml-pipeline/api-server:$_TAG_NAME'
+    docker tag gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA 'gcr.io/ml-pipeline/api-server:$_COMMIT_SHA'
+    docker tag gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA 'gcr.io/ml-pipeline/google/pipelines/apiserver:$_TAG_NAME'
+    docker tag gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA 'gcr.io/ml-pipeline/google/pipelines-test/apiserver:$_TAG_NAME'
+    docker tag gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/apiserver:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/api-server:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/apiserver:$(cat /workspace/mm.ver)
+    docker push 'gcr.io/ml-pipeline/api-server:$_TAG_NAME'
+    docker push 'gcr.io/ml-pipeline/api-server:$_COMMIT_SHA'
+    docker push 'gcr.io/ml-pipeline/google/pipelines/apiserver:$_TAG_NAME'
+    docker push 'gcr.io/ml-pipeline/google/pipelines-test/apiserver:$_TAG_NAME'
     docker push gcr.io/ml-pipeline/google/pipelines/apiserver:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/apiserver:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA']
   id:   'pullScheduledworkflow'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA', 'gcr.io/ml-pipeline/scheduledworkflow:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA', 'gcr.io/ml-pipeline/scheduledworkflow:$_TAG_NAME']
   id:   'tagScheduledworkflowVersionNumber'
   waitFor: ['pullScheduledworkflow']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA', 'gcr.io/ml-pipeline/scheduledworkflow:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA', 'gcr.io/ml-pipeline/scheduledworkflow:$_COMMIT_SHA']
   id:   'tagScheduledworkflowCommitSHA'
   waitFor: ['pullScheduledworkflow']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$_TAG_NAME']
   id:   'tagScheduledworkflowForMarketplace'
   waitFor: ['pullScheduledworkflow']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$_TAG_NAME']
   id:   'tagScheduledworkflowForMarketplaceTest'
   waitFor: ['pullScheduledworkflow']
 - id:   'tagScheduledworkflowForMarketplaceMajorMinor'
@@ -129,28 +129,28 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/scheduledworkflow:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/scheduledworkflow:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA']
   id:   'pullViewerCrdController'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA', 'gcr.io/ml-pipeline/viewer-crd-controller:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA', 'gcr.io/ml-pipeline/viewer-crd-controller:$_TAG_NAME']
   id:   'tagViewerCrdControllerVersionNumber'
   waitFor: ['pullViewerCrdController']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA', 'gcr.io/ml-pipeline/viewer-crd-controller:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA', 'gcr.io/ml-pipeline/viewer-crd-controller:$_COMMIT_SHA']
   id:   'tagViewerCrdControllerCommitSHA'
   waitFor: ['pullViewerCrdController']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/viewercrd:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/viewercrd:$_TAG_NAME']
   id:   'tagViewerCrdControllerForMarketplace'
   waitFor: ['pullViewerCrdController']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$_TAG_NAME']
   id:   'tagViewerCrdControllerForMarketplaceTest'
   waitFor: ['pullViewerCrdController']
 - id:   'tagViewerCrdControllerForMarketplaceMajorMinor'
@@ -160,28 +160,28 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/viewercrd:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/viewer-crd-controller:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/viewercrd:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/viewer-crd-controller:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/viewercrd:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA']
   id:   'pullPersistenceagent'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA', 'gcr.io/ml-pipeline/persistenceagent:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/persistenceagent:$_TAG_NAME']
   id:   'tagPersistenceagentVersionNumber'
   waitFor: ['pullPersistenceagent']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA', 'gcr.io/ml-pipeline/persistenceagent:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/persistenceagent:$_COMMIT_SHA']
   id:   'tagPersistenceagentCommitSHA'
   waitFor: ['pullPersistenceagent']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/persistenceagent:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/persistenceagent:$_TAG_NAME']
   id:   'tagPersistenceagentForMarketplace'
   waitFor: ['pullPersistenceagent']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$_TAG_NAME']
   id:   'tagPersistenceagentForMarketplaceTest'
   waitFor: ['pullPersistenceagent']
 - id:   'tagPersistenceagentForMarketplaceMajorMinor'
@@ -191,28 +191,28 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/persistenceagent:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/persistenceagent:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/persistenceagent:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/persistenceagent:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/persistenceagent:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA']
   id:   'pullInverseProxyAgent'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA', 'gcr.io/ml-pipeline/inverse-proxy-agent:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/inverse-proxy-agent:$_TAG_NAME']
   id:   'tagInverseProxyAgentVersionNumber'
   waitFor: ['pullInverseProxyAgent']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA', 'gcr.io/ml-pipeline/inverse-proxy-agent:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/inverse-proxy-agent:$_COMMIT_SHA']
   id:   'tagInverseProxyAgentCommitSHA'
   waitFor: ['pullInverseProxyAgent']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/proxyagent:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/proxyagent:$_TAG_NAME']
   id:   'tagInverseProxyAgentForMarketplace'
   waitFor: ['pullInverseProxyAgent']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$_TAG_NAME']
   id:   'tagInverseProxyAgentForMarketplaceTest'
   waitFor: ['pullInverseProxyAgent']
 - id:   'tagInverseProxyAgentForMarketplaceMajorMinor'
@@ -222,28 +222,28 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/proxyagent:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/inverse-proxy-agent:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/proxyagent:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/inverse-proxy-agent:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/proxyagent:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA']
   id:   'pullVisualizationServer'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/visualization-server:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/visualization-server:$_TAG_NAME']
   id:   'tagVisualizationServerVersionNumber'
   waitFor: ['pullVisualizationServer']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/visualization-server:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/visualization-server:$_COMMIT_SHA']
   id:   'tagVisualizationServerCommitSHA'
   waitFor: ['pullVisualizationServer']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/visualizationserver:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/visualizationserver:$_TAG_NAME']
   id:   'tagVisualizationServerForMarketplace'
   waitFor: ['pullVisualizationServer']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$_TAG_NAME']
   id:   'tagVisualizationServerForMarketplaceTest'
   waitFor: ['pullVisualizationServer']
 - id:   'tagVisualizationServerForMarketplaceMajorMinor'
@@ -253,8 +253,8 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/visualizationserver:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/visualization-server:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/visualizationserver:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/visualization-server:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/visualizationserver:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$(cat /workspace/mm.ver)
 
@@ -262,11 +262,11 @@ steps:
   args: ['pull', 'gcr.io/tfx-oss-public/ml_metadata_store_server:0.21.1']
   id:   'pullMetadataServer'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/tfx-oss-public/ml_metadata_store_server:0.21.1', 'gcr.io/ml-pipeline/google/pipelines/metadataserver:$TAG_NAME']
+  args: ['tag', 'gcr.io/tfx-oss-public/ml_metadata_store_server:0.21.1', 'gcr.io/ml-pipeline/google/pipelines/metadataserver:$_TAG_NAME']
   id:   'tagMetadataServerForMarketplace'
   waitFor: ['pullMetadataServer']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/tfx-oss-public/ml_metadata_store_server:0.21.1', 'gcr.io/ml-pipeline/google/pipelines-test/metadataserver:$TAG_NAME']
+  args: ['tag', 'gcr.io/tfx-oss-public/ml_metadata_store_server:0.21.1', 'gcr.io/ml-pipeline/google/pipelines-test/metadataserver:$_TAG_NAME']
   id:   'tagMetadataServerForMarketplaceTest'
   waitFor: ['pullMetadataServer']
 - id:   'tagMetadataServerForMarketplaceMajorMinor'
@@ -283,23 +283,23 @@ steps:
 
 - id:   'pullMetadataWriter'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA']
   waitFor: ['-']
 - id:   'tagMetadataWriterVersionNumber'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA', 'gcr.io/ml-pipeline/metadata-writer:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/metadata-writer:$_TAG_NAME']
   waitFor: ['pullMetadataWriter']
 - id:   'tagMetadataWriterCommitSHA'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA', 'gcr.io/ml-pipeline/metadata-writer:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/metadata-writer:$_COMMIT_SHA']
   waitFor: ['pullMetadataWriter']
 - id:   'tagMetadataWriterForMarketplace'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/metadatawriter:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/metadatawriter:$_TAG_NAME']
   waitFor: ['pullMetadataWriter']
 - id:   'tagMetadataWriterForMarketplaceTest'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$_TAG_NAME']
   waitFor: ['pullMetadataWriter']
 - id:   'tagMetadataWriterForMarketplaceMajorMinor'
   waitFor: ['pullMetadataWriter', 'parseMajorMinorVersion']
@@ -308,30 +308,30 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/metadatawriter:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/metadata-writer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/metadatawriter:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/metadata-writer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/metadatawriter:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$(cat /workspace/mm.ver)
 
 - id:   'pullCacheServer'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA']
   waitFor: ['-']
 - id:   'tagCacheServerVersionNumber'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/cache-server:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/cache-server:$_TAG_NAME']
   waitFor: ['pullCacheServer']
 - id:   'tagCacheServerCommitSHA'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/cache-server:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/cache-server:$_COMMIT_SHA']
   waitFor: ['pullCacheServer']
 - id:   'tagCacheServerForMarketplace'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/cacheserver:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/cacheserver:$_TAG_NAME']
   waitFor: ['pullCacheServer']
 - id:   'tagCacheServerForMarketplaceTest'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$_TAG_NAME']
   waitFor: ['pullCacheServer']
 - id:   'tagCacheServerForMarketplaceMajorMinor'
   waitFor: ['pullCacheServer', 'parseMajorMinorVersion']
@@ -340,30 +340,30 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/cacheserver:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/cache-server:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/cacheserver:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/cache-server:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/cacheserver:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$(cat /workspace/mm.ver)
 
 - id:   'pullCacheDeployer'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA']
   waitFor: ['-']
 - id:   'tagCacheDeployerVersionNumber'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/cache-deployer:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/cache-deployer:$_TAG_NAME']
   waitFor: ['pullCacheDeployer']
 - id:   'tagCacheDeployerCommitSHA'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/cache-deployer:$COMMIT_SHA']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/cache-deployer:$_COMMIT_SHA']
   waitFor: ['pullCacheDeployer']
 - id:   'tagCacheDeployerForMarketplace'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/cachedeployer:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/cachedeployer:$_TAG_NAME']
   waitFor: ['pullCacheDeployer']
 - id:   'tagCacheDeployerForMarketplaceTest'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$_TAG_NAME']
   waitFor: ['pullCacheDeployer']
 - id:   'tagCacheDeployerForMarketplaceMajorMinor'
   waitFor: ['pullCacheDeployer', 'parseMajorMinorVersion']
@@ -372,20 +372,20 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/cachedeployer:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/cache-deployer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/cachedeployer:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/cache-deployer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/cachedeployer:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$(cat /workspace/mm.ver)
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/metadata-envoy:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/metadata-envoy:$_COMMIT_SHA']
   id:   'pullMetadataEnvoy'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-envoy:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-envoy:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$_TAG_NAME']
   id:   'tagMetadataEnvoyForMarketplace'
   waitFor: ['pullMetadataEnvoy']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-envoy:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/metadata-envoy:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$_TAG_NAME']
   id:   'tagMetadataEnvoyForMarketplaceTest'
   waitFor: ['pullMetadataEnvoy']
 - id:   'tagMetadataEnvoyForMarketplaceMajorMinor'
@@ -395,8 +395,8 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/metadata-envoy:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/metadata-envoy:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/metadata-envoy:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/metadata-envoy:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$(cat /workspace/mm.ver)
 
@@ -404,11 +404,11 @@ steps:
   args: ['pull', 'gcr.io/ml-pipeline/minio:RELEASE.2019-08-14T20-37-41Z-license-compliance']
   id:   'pullMinio'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/minio:RELEASE.2019-08-14T20-37-41Z-license-compliance', 'gcr.io/ml-pipeline/google/pipelines/minio:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/minio:RELEASE.2019-08-14T20-37-41Z-license-compliance', 'gcr.io/ml-pipeline/google/pipelines/minio:$_TAG_NAME']
   id:   'tagMinioForMarketplace'
   waitFor: ['pullMinio']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/minio:RELEASE.2019-08-14T20-37-41Z-license-compliance', 'gcr.io/ml-pipeline/google/pipelines-test/minio:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/minio:RELEASE.2019-08-14T20-37-41Z-license-compliance', 'gcr.io/ml-pipeline/google/pipelines-test/minio:$_TAG_NAME']
   id:   'tagMinioForMarketplaceTest'
   waitFor: ['pullMinio']
 - id:   'tagMinioForMarketplaceMajorMinor'
@@ -427,11 +427,11 @@ steps:
   args: ['pull', 'gcr.io/ml-pipeline/mysql:5.6']
   id:   'pullMysql'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/mysql:5.6', 'gcr.io/ml-pipeline/google/pipelines/mysql:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/mysql:5.6', 'gcr.io/ml-pipeline/google/pipelines/mysql:$_TAG_NAME']
   id:   'tagMySqlForMarketplace'
   waitFor: ['pullMysql']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/mysql:5.6', 'gcr.io/ml-pipeline/google/pipelines-test/mysql:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/mysql:5.6', 'gcr.io/ml-pipeline/google/pipelines-test/mysql:$_TAG_NAME']
   id:   'tagMySqlForMarketplaceTest'
   waitFor: ['pullMysql']
 - id:   'tagMySqlForMarketplaceMajorMinor'
@@ -450,11 +450,11 @@ steps:
   args: ['pull', 'gcr.io/cloudsql-docker/gce-proxy:1.14']
   id:   'pullCloudsqlProxy'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/cloudsql-docker/gce-proxy:1.14', 'gcr.io/ml-pipeline/google/pipelines/cloudsqlproxy:$TAG_NAME']
+  args: ['tag', 'gcr.io/cloudsql-docker/gce-proxy:1.14', 'gcr.io/ml-pipeline/google/pipelines/cloudsqlproxy:$_TAG_NAME']
   id:   'tagCloudSqlProxyForMarketplace'
   waitFor: ['pullCloudsqlProxy']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/cloudsql-docker/gce-proxy:1.14', 'gcr.io/ml-pipeline/google/pipelines-test/cloudsqlproxy:$TAG_NAME']
+  args: ['tag', 'gcr.io/cloudsql-docker/gce-proxy:1.14', 'gcr.io/ml-pipeline/google/pipelines-test/cloudsqlproxy:$_TAG_NAME']
   id:   'tagCloudSqlProxyForMarketplaceTest'
   waitFor: ['pullCloudsqlProxy']
 - id:   'tagCloudSqlProxyForMarketplaceMajorMinor'
@@ -473,11 +473,11 @@ steps:
   args: ['pull', 'gcr.io/ml-pipeline/argoexec:v2.7.5-license-compliance']
   id:   'pullArgoExecutor'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/argoexec:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines/argoexecutor:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/argoexec:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines/argoexecutor:$_TAG_NAME']
   id:   'tagArgoExecutorForMarketplace'
   waitFor: ['pullArgoExecutor']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/argoexec:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines-test/argoexecutor:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/argoexec:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines-test/argoexecutor:$_TAG_NAME']
   id:   'tagArgoExecutorForMarketplaceTest'
   waitFor: ['pullArgoExecutor']
 - id:   'tagArgoExecutorForMarketplaceMajorMinor'
@@ -496,11 +496,11 @@ steps:
   args: ['pull', 'gcr.io/ml-pipeline/workflow-controller:v2.7.5-license-compliance']
   id:   'pullArgoWorkflowController'
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/workflow-controller:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines/argoworkflowcontroller:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/workflow-controller:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines/argoworkflowcontroller:$_TAG_NAME']
   id:   'tagArgoWorkflowControllerForMarketplace'
   waitFor: ['pullArgoWorkflowController']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/ml-pipeline/workflow-controller:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines-test/argoworkflowcontroller:$TAG_NAME']
+  args: ['tag', 'gcr.io/ml-pipeline/workflow-controller:v2.7.5-license-compliance', 'gcr.io/ml-pipeline/google/pipelines-test/argoworkflowcontroller:$_TAG_NAME']
   id:   'tagArgoWorkflowControllerForMarketplaceTest'
   waitFor: ['pullArgoWorkflowController']
 - id:   'tagArgoWorkflowControllerForMarketplaceMajorMinor'
@@ -518,15 +518,15 @@ steps:
 # Marketplace specific deployer and specific primary image
 - id:   'pullMarketplaceDeployer'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA']
+  args: ['pull', 'gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA']
   waitFor: ['-']
 - id:   'tagMarketplaceDeployerVersionNumber'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/deployer:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines/deployer:$_TAG_NAME']
   waitFor: ['pullMarketplaceDeployer']
 - id:   'tagMarketplaceDeployerVersionNumberTest'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/deployer:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test/deployer:$_TAG_NAME']
   waitFor: ['pullMarketplaceDeployer']
 - id:   'tagMarketplaceDeployerVersionNumberMajorMinor'
   waitFor: ['pullMarketplaceDeployer', 'parseMajorMinorVersion']
@@ -535,18 +535,18 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/deployer:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/deployer:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines/deployer:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test/deployer:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines/deployer:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test/deployer:$(cat /workspace/mm.ver)
 
 - id:   'tagMarketplacePrimaryVersionNumber'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines:$_TAG_NAME']
   waitFor: ['pullMarketplaceDeployer']
 - id:   'tagMarketplacePrimaryVersionNumberTest'
   name: 'gcr.io/cloud-builders/docker'
-  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test:$TAG_NAME']
+  args: ['tag', 'gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA', 'gcr.io/ml-pipeline/google/pipelines-test:$_TAG_NAME']
   waitFor: ['pullMarketplaceDeployer']
 - id:   'tagMarketplacePrimaryVersionNumberMajorMinor'
   waitFor: ['pullMarketplaceDeployer', 'parseMajorMinorVersion']
@@ -555,17 +555,17 @@ steps:
   args:
   - -ceux
   - |
-    docker tag gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines:$(cat /workspace/mm.ver)
-    docker tag gcr.io/$PROJECT_ID/deployer:$COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines:$(cat /workspace/mm.ver)
+    docker tag gcr.io/$PROJECT_ID/deployer:$_COMMIT_SHA gcr.io/ml-pipeline/google/pipelines-test:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines:$(cat /workspace/mm.ver)
     docker push gcr.io/ml-pipeline/google/pipelines-test:$(cat /workspace/mm.ver)
 
 # Copy the Python SDK
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', 'gs://$PROJECT_ID/builds/$COMMIT_SHA/kfp.tar.gz', '/workspace/']
+  args: ['cp', 'gs://$PROJECT_ID/builds/$_COMMIT_SHA/kfp.tar.gz', '/workspace/']
   id:   'copyPythonSDKLocal'
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', '/workspace/kfp.tar.gz', 'gs://ml-pipeline/release/$TAG_NAME/kfp.tar.gz']
+  args: ['cp', '/workspace/kfp.tar.gz', 'gs://ml-pipeline/release/$_TAG_NAME/kfp.tar.gz']
   id:   'copyPythonSDK'
   waitFor: ['copyPythonSDKLocal']
 - name: 'gcr.io/cloud-builders/gsutil'
@@ -575,10 +575,10 @@ steps:
 
 # Copy the Python Component SDK
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', 'gs://$PROJECT_ID/builds/$COMMIT_SHA/kfp-component.tar.gz', '/workspace/']
+  args: ['cp', 'gs://$PROJECT_ID/builds/$_COMMIT_SHA/kfp-component.tar.gz', '/workspace/']
   id:   'copyPythonComponentSDKLocal'
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', '/workspace/kfp-component.tar.gz', 'gs://ml-pipeline/release/$TAG_NAME/kfp-component.tar.gz']
+  args: ['cp', '/workspace/kfp-component.tar.gz', 'gs://ml-pipeline/release/$_TAG_NAME/kfp-component.tar.gz']
   id:   'copyPythonComponentSDK'
   waitFor: ['copyPythonComponentSDKLocal']
 - name: 'gcr.io/cloud-builders/gsutil'
@@ -587,54 +587,57 @@ steps:
   waitFor: ['copyPythonComponentSDKLocal']
 
 images:
-- 'gcr.io/ml-pipeline/scheduledworkflow:$TAG_NAME'
-- 'gcr.io/ml-pipeline/scheduledworkflow:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/persistenceagent:$TAG_NAME'
-- 'gcr.io/ml-pipeline/persistenceagent:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/viewer-crd-controller:$TAG_NAME'
-- 'gcr.io/ml-pipeline/viewer-crd-controller:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/inverse-proxy-agent:$TAG_NAME'
-- 'gcr.io/ml-pipeline/inverse-proxy-agent:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/visualization-server:$TAG_NAME'
-- 'gcr.io/ml-pipeline/visualization-server:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/metadata-writer:$TAG_NAME'
-- 'gcr.io/ml-pipeline/metadata-writer:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/cache-server:$TAG_NAME'
-- 'gcr.io/ml-pipeline/cache-server:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/cache-deployer:$TAG_NAME'
-- 'gcr.io/ml-pipeline/cache-deployer:$COMMIT_SHA'
-- 'gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/viewercrd:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/persistenceagent:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/proxyagent:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/visualizationserver:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/metadataserver:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/minio:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/mysql:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/cloudsqlproxy:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/argoexecutor:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/argoworkflowcontroller:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/metadatawriter:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/deployer:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/cacheserver:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines/cachedeployer:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/metadataserver:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/minio:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/mysql:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/cloudsqlproxy:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/argoexecutor:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/argoworkflowcontroller:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test/deployer:$TAG_NAME'
-- 'gcr.io/ml-pipeline/google/pipelines-test:$TAG_NAME'
+- 'gcr.io/ml-pipeline/scheduledworkflow:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/scheduledworkflow:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/persistenceagent:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/persistenceagent:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/viewer-crd-controller:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/viewer-crd-controller:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/inverse-proxy-agent:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/inverse-proxy-agent:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/visualization-server:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/visualization-server:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/metadata-writer:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/metadata-writer:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/cache-server:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/cache-server:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/cache-deployer:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/cache-deployer:$_COMMIT_SHA'
+- 'gcr.io/ml-pipeline/google/pipelines/scheduledworkflow:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/viewercrd:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/persistenceagent:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/proxyagent:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/visualizationserver:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/metadataserver:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/minio:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/mysql:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/cloudsqlproxy:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/argoexecutor:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/argoworkflowcontroller:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/metadataenvoy:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/metadatawriter:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/deployer:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/cacheserver:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines/cachedeployer:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/scheduledworkflow:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/viewercrd:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/persistenceagent:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/proxyagent:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/visualizationserver:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/metadataserver:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/minio:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/mysql:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/cloudsqlproxy:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/argoexecutor:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/argoworkflowcontroller:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/metadataenvoy:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/metadatawriter:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/cacheserver:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/cachedeployer:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test/deployer:$_TAG_NAME'
+- 'gcr.io/ml-pipeline/google/pipelines-test:$_TAG_NAME'
 timeout: '1200s'
+substitutions:
+  _TAG_NAME: 1.0.0-rc.1
+  _COMMIT_SHA: e86e90a120f04c739e1cd485fe1a398e8a2b78bd
