@@ -22,7 +22,7 @@ steps:
     - -ceux
     - |
       # Parse major minor version and save to a file for reusing in other steps.
-      echo $_TAG_NAME | sed -e "s#[^0-9]*\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)#\1.\2#" > /workspace/mm.ver
+      echo $_TAG_NAME | sed -e "s#\([0-9]\+[.][0-9]\+\)[.].*#\1#" > /workspace/mm.ver
 
 # Pull and retag images for pipeline components
 - id: 'retagComponentImages'
